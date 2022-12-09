@@ -17,5 +17,5 @@ jobs:
     - name: Build the Docker image
       run: |
         echo "${{ secrets.DOCKERPW }}" | docker login -u "sigogglin" --password-stdin
-        docker image build -t dpeart/heatmaster:latest .
-        docker push dpeart/heatmaster:latest
+        docker image build -t siggoglin/heatmaster:latest .
+        docker push siggoglin/heatmaster:latest
