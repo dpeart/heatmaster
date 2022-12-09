@@ -16,6 +16,6 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image
       run: |
-        echo "${{ secrets.DOCKERPW }}" | docker login -u "sigogglin" --password-stdin
-        docker image build -t siggoglin/heatmaster:latest .
+        echo "docker image build -t siggoglin/heatmaster:latest .
+        ${{ secrets.DOCKERPW }}" | docker login -u "sigogglin" --password-stdin
         docker push sigogglin/heatmaster:latest
