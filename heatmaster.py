@@ -16,7 +16,7 @@ def hello():
         page.click('button[id=button_login]')
         while 1 == 1:
             page.is_visible('id=param_0')
-            page.is_visible('id=param_1')
+#            page.is_visible('id=param_1')
 #            page.is_visible('id=param_2')
 #            page.is_visible('id=param_3')
             message = page.inner_text('.msg_tline>>nth=0')
