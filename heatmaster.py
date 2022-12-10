@@ -17,8 +17,8 @@ def hello():
         while 1 == 1:
             page.is_visible('id=param_0')
             page.is_visible('id=param_1')
-            page.is_visible('id=param_2')
-            page.is_visible('id=param_3')
+#            page.is_visible('id=param_2')
+#            page.is_visible('id=param_3')
             message = page.inner_text('.msg_tline>>nth=0')
             furnace = page.inner_text('.msg_tline>>nth=1')
             param_0 = page.inner_text('id=param_0')
