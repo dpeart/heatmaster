@@ -2,7 +2,8 @@ from flask import Flask, jsonify
 from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
-
+import os
+server = os.environ['boilerip']
 
 @app.route("/")
 def hello():
@@ -10,7 +11,7 @@ def hello():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, slow_mo=50)
         page = browser.new_page()
-        page.goto('http://192.168.10.15/logo_td_01.shtm')
+        page.goto('http://' + server + '/logo_td_01.shtm')
         page.fill('input#input_password', 'heatmaster')
         page.click('button[id=button_login]')
         while 1 == 1:
