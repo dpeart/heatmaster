@@ -1,4 +1,4 @@
-FROM ubuntu 
+FROM ubuntu:latest 
 
 ARG USERNAME=heatmaster
 ARG GNAME=users
@@ -18,16 +18,15 @@ RUN apt-get -y install python3
 RUN apt-get -y install python3-pip
 RUN apt-get -y install curl
 RUN apt-get -y install vim
-RUN pip install playwright
 RUN pip install flask
-RUN playwright install
-RUN playwright install-deps
-RUN playwright install chromium
+RUN pip install playwright
 
 USER $USERNAME
 
+RUN playwright install-deps
+RUN playwright install chromium
+
 WORKDIR /home/$USERNAME
-RUN playwright install
 
 ADD heatmaster.py /home/$USERNAME
 
