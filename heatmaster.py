@@ -1,9 +1,10 @@
+import os
 from flask import Flask, jsonify
 from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
-import os
 server = os.environ['boilerip']
+
 
 @app.route("/")
 def hello():
@@ -15,25 +16,28 @@ def hello():
         page.fill('input#input_password', 'heatmaster')
         page.click('button[id=button_login]')
         while 1 == 1:
-            page.is_visible('id=param_0')
+            page.is_visible('.msg_tline>>nth=1')
+#            page.is_visible('id=param_0')
 #            page.is_visible('id=param_1')
 #            page.is_visible('id=param_2')
 #            page.is_visible('id=param_3')
             message = page.inner_text('.msg_tline>>nth=0')
             furnace = page.inner_text('.msg_tline>>nth=1')
-            param_0 = page.inner_text('id=param_0')
-            param_1 = page.inner_text('id=param_1')
-            param_2 = page.inner_text('id=param_2')
-            param_3 = page.inner_text('id=param_3')
 
-            print('message:', message)
-            print('status:', furnace)
-            print('temp:', param_0)
-            print('O2:', param_1)
-            print('Top Air:', param_2)
-            print('Bot Air:', param_3)
-
+# Only look for additional params if not in TIMER mode
             if furnace.find('TIMER') < 0:
+                param_0 = page.inner_text('id=param_0')
+                param_1 = page.inner_text('id=param_1')
+                param_2 = page.inner_text('id=param_2')
+                param_3 = page.inner_text('id=param_3')
+
+                print('message:', message)
+                print('status:', furnace)
+                print('temp:', param_0)
+                print('O2:', param_1)
+                print('Top Air:', param_2)
+                print('Bot Air:', param_3)
+                
                 my_dict = {
                     'Heatmaster': {
                         'status': furnace.strip(),
@@ -43,9 +47,10 @@ def hello():
                         'Bottom_Air': float(param_3)
                     }
                 }
-                return (jsonify(my_dict))
+            return (jsonify(my_dict))
 
             page.reload()
 
+
 if __name__ == '__main__':
-    app.run(host = "0.0.0.0", port = 5000)
+    app.run(host="0.0.0.0", port=5000)
