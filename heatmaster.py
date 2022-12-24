@@ -1,14 +1,21 @@
 import os
+import time
 from flask import Flask, jsonify
 from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 server = os.environ['boilerip']
 
-
+def my_own_wait_for_selector(page, selector, time_out):
+    try:
+        page.wait_for_selector(selector, timeout=time_out)
+        return True
+    except:
+        return False
+    
 @app.route("/")
-def hello():
 
+def getData():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, slow_mo=50)
         page = browser.new_page()
@@ -17,16 +24,15 @@ def hello():
         page.click('button[id=button_login]')
         while 1 == 1:
             page.is_visible('.msg_tline>>nth=1')
-#            page.is_visible('id=param_0')
-#            page.is_visible('id=param_1')
-#            page.is_visible('id=param_2')
-#            page.is_visible('id=param_3')
             message = page.inner_text('.msg_tline>>nth=0')
             furnace = page.inner_text('.msg_tline>>nth=1')
 
 # Only look for additional params if not in TIMER mode
             if furnace.find('TIMER') < 0:
                 param_0 = page.inner_text('id=param_0')
+                # if param=1 isn't loaded in 1 second, do a page reload and try again
+                while not my_own_wait_for_selector(page, 'id=param_1', 1000):
+                    page.reload()
                 param_1 = page.inner_text('id=param_1')
                 param_2 = page.inner_text('id=param_2')
                 param_3 = page.inner_text('id=param_3')
@@ -48,7 +54,7 @@ def hello():
                     }
                 }
             return (jsonify(my_dict))
-
+            time.sleep(5)
             page.reload()
 
 
