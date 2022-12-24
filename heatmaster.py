@@ -1,10 +1,22 @@
-import os
+import os, logging
 import time
+import threading
 from flask import Flask, jsonify
 from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 server = os.environ['boilerip']
+
+my_lock = threading.Lock()
+my_dict = {
+    'Heatmaster': {
+        'status': "",
+        'temp': 0,
+        'O2': 0,
+        'Top_Air': 0,
+        'Bottom_Air': 0
+    }
+}
 
 def my_own_wait_for_selector(page, selector, time_out):
     try:
@@ -12,10 +24,9 @@ def my_own_wait_for_selector(page, selector, time_out):
         return True
     except:
         return False
-    
-@app.route("/")
 
 def getData():
+    global my_dict, my_lock
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, slow_mo=50)
         page = browser.new_page()
@@ -43,20 +54,55 @@ def getData():
                 print('O2:', param_1)
                 print('Top Air:', param_2)
                 print('Bot Air:', param_3)
-                
-                my_dict = {
-                    'Heatmaster': {
-                        'status': furnace.strip(),
-                        'temp': float(param_0),
-                        'O2': float(param_1),
-                        'Top_Air': float(param_2),
-                        'Bottom_Air': float(param_3)
-                    }
-                }
-            return (jsonify(my_dict))
+
+                try:
+                        # Acquire a lock before modifying the object state
+                        # print('my_dict acquire lock')
+                        my_lock.acquire()
+
+                        my_dict = {
+                            'Heatmaster': {
+                                'status': furnace.strip(),
+                                'temp': float(param_0),
+                                'O2': float(param_1),
+                                'Top_Air': float(param_2),
+                                'Bottom_Air': float(param_3)
+                            }
+                        }
+
+                finally:
+                    # Release the lock in any case
+                    # print('my_dict release lock')
+                    my_lock.release()
+
             time.sleep(5)
             page.reload()
 
+def thread_function(name):
+
+    logging.info("Thread %s: starting", name)
+
+    time.sleep(2)
+
+    logging.info("Thread %s: finishing", name)
+
+@app.route("/")
+
+def returnData():
+    global my_dict, my_lock
+    try:
+        # print('returnData acquire lock')
+        my_lock.acquire()
+        local_dict = jsonify(my_dict)
+        return (local_dict)
+    
+    finally:
+        # print('returnData released lock')
+        my_lock.release()    
+
 
 if __name__ == '__main__':
+    x = threading.Thread(target=getData, daemon=True)
+    x.start()
+
     app.run(host="0.0.0.0", port=5000)
