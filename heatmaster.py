@@ -48,12 +48,12 @@ def getData():
                 param_2 = page.inner_text('id=param_2')
                 param_3 = page.inner_text('id=param_3')
 
-                print('message:', message)
-                print('status:', furnace)
-                print('temp:', param_0)
-                print('O2:', param_1)
-                print('Top Air:', param_2)
-                print('Bot Air:', param_3)
+                # print('message:', message)
+                # print('status:', furnace)
+                # print('temp:', param_0)
+                # print('O2:', param_1)
+                # print('Top Air:', param_2)
+                # print('Bot Air:', param_3)
 
                 try:
                         # Acquire a lock before modifying the object state
@@ -77,14 +77,6 @@ def getData():
 
             time.sleep(5)
             page.reload()
-
-def thread_function(name):
-
-    logging.info("Thread %s: starting", name)
-
-    time.sleep(2)
-
-    logging.info("Thread %s: finishing", name)
 
 @app.route("/")
 
