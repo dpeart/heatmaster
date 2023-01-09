@@ -41,8 +41,35 @@ def getData():
                 page.is_visible('.msg_tline>>nth=1')
                 message = page.inner_text('.msg_tline>>nth=0')
                 furnace = page.inner_text('.msg_tline>>nth=1')
+                if furnace.find('Cold') > 0:
+                    # in cold start id_param 3 doesn't exist as top air is hard coded
+                    param_0 = page.inner_text('id=param_0')
+                    # if param=1 isn't loaded in 1 second, do a page reload and try again
+                    while not my_own_wait_for_selector(page, 'id=param_1', 1000):
+                        page.reload()
+                    param_1 = page.inner_text('id=param_1')
+                    param_2 = 100
+                    param_3 = page.inner_text('id=param_2')
 
-                # Only look for additional params if not in TIMER mode
+                    try:
+                            # Acquire a lock before modifying the object state
+                            # print('my_dict acquire lock')
+                            my_lock.acquire()
+
+                            my_dict = {
+                                'Heatmaster': {
+                                    'status': furnace.strip(),
+                                    'temp': float(param_0),
+                                    'O2': float(param_1),
+                                    'Top_Air': float(param_2),
+                                    'Bottom_Air': float(param_3)
+                                }
+                            }
+
+                    finally:
+                        # Release the lock in any case
+                        my_lock.release()
+                    continue
                 if furnace.find('TIMER') < 0:
                     param_0 = page.inner_text('id=param_0')
                     # if param=1 isn't loaded in 1 second, do a page reload and try again
